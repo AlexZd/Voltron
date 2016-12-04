@@ -26,12 +26,10 @@
         return cell;
     }
     cell.delegate = self;
-    if (!cell.contentViewController) {
-        UIViewController *controller = [self.dataSource collectionView:self
-                                               controllerForIdentifier:identifier];
-        NSAssert(controller && [controller isKindOfClass:[UIViewController class]], @"The collection view's data source did not return a valid view controller for identifier %@", identifier);
-        cell.contentViewController = controller;
-    }
+    UIViewController *controller = [self.dataSource collectionView:self controllerForIndexPath:indexPath];
+    NSAssert(controller && [controller isKindOfClass:[UIViewController class]], @"The collection view's data source did not return a valid view controller for identifier %@", identifier);
+    cell.contentViewController = controller;
+    
     return cell;
 }
 
@@ -42,36 +40,39 @@
         return;
     }
     UIViewController *controller = cell.contentViewController;
-    [self _unhostViewController:controller];
+}
+
+- (void)willDisplayCell:(WMLCollectionViewCell *)cell {
 }
 
 #pragma mark - Private
 
 - (void)_unhostViewController:(UIViewController *)controller {
-    [controller willMoveToParentViewController:nil];
-    [controller.view removeFromSuperview];
-    [controller removeFromParentViewController];
+    if(controller.view.superview) {
+        [controller willMoveToParentViewController:nil];
+        [controller.view removeFromSuperview];
+        [controller removeFromParentViewController];
+    }
 }
 
-- (void)_hostViewController:(UIViewController *)controller
-               withHostView:(UIView *)superview {
-    [self.containerViewController addChildViewController:controller];
-    controller.view.frame = superview.bounds;
-    controller.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [superview addSubview:controller.view];
-    [controller didMoveToParentViewController:self.containerViewController];
+- (void)_hostViewController:(UIViewController *)controller withHostView:(UIView *)superview {
+    if(![superview.subviews containsObject:controller.view]) {
+        [self.containerViewController addChildViewController:controller];
+        controller.view.frame = superview.bounds;
+        controller.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [superview addSubview:controller.view];
+        [controller didMoveToParentViewController:self.containerViewController];
+    }
 }
 
 #pragma mark - WMLCollectionViewCellDelegate
 
 - (void)collectionViewCell:(WMLCollectionViewCell *)cell willMoveToWindow:(UIWindow *)window {
-    [self _hostViewController:cell.contentViewController
-                withHostView:cell.contentView];
+    [self _hostViewController:cell.contentViewController withHostView:cell.containerView];
 }
 
 - (void)collectionViewCellWillPrepareForReuse:(WMLCollectionViewCell *)cell {
-    [self _hostViewController:cell.contentViewController
-                withHostView:cell.contentView];
+    [self _hostViewController:cell.contentViewController withHostView:cell.containerView];
 }
 
 @end

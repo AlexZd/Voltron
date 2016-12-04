@@ -10,6 +10,7 @@
 
 @interface WMLCollectionViewCell : UICollectionViewCell
 
+@property (nonatomic, readonly) UIView *containerView;
 @property (nonatomic, strong, readonly) id contentViewController;
 
 @end

@@ -12,8 +12,8 @@
 @protocol WMLControllerCollectionViewDataSource <UICollectionViewDataSource>
 
 @required
-- (UIViewController *)collectionView:(WMLCollectionView *)collectionView
-             controllerForIdentifier:(NSString *)identifier;
+- (UIViewController *)collectionView:(WMLCollectionView *)collectionView controllerForIdentifier:(NSString *)identifier;
+- (UIViewController *)collectionView:(WMLCollectionView *)collectionView controllerForIndexPath:(NSIndexPath *)indexPath;
 
 @end
 
@@ -26,5 +26,6 @@
 @property (nonatomic, weak) IBOutlet UIViewController *containerViewController;
 
 - (void)didEndDisplayingCell:(UICollectionViewCell *)cell;
+- (void)willDisplayCell:(UICollectionViewCell *)cell;
 
 @end
